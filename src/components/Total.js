@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import {Context} from '../context/ContextProvider';
 import listaPlanes from '../helpers/listaPlanes';
 import './total.css';
@@ -6,6 +6,15 @@ import './total.css';
 export default function Total() {
 
     const [total, ] = useContext(Context);
+    const [uf, setUf] = useState(null)
+
+    const date =  new Date().toLocaleDateString('es-CL', { year: 'numeric',month: 'numeric',day: 'numeric' } );
+
+  useEffect(() => {
+    fetch(`https://mindicador.cl/api/uf/${date}`)
+    .then(response => response.json())
+    .then(data => setUf(data.serie[0].valor))
+  },[])
 
     const totalSumados = total.reduce((acc, item) =>{
         return {usuario: acc.usuario + item.usuario, trabajador: acc.trabajador + item.trabajador }
@@ -28,6 +37,8 @@ export default function Total() {
                         <h1 className="card-title pricing-card-title">{seleccionados[0]?.v} UF<small className="text-muted fw-light">/mes</small></h1>
                         <ul className="list-unstyled mt-3 mb-4">
                             <li>Plan {seleccionados[0]?.n}</li>
+                            <li>Total pesos: $ {parseInt(seleccionados[0]?.v * uf).toLocaleString('es-CL')}</li>
+                            <li>Valor UF: $ {uf.toLocaleString('es-CL')}</li>
                         </ul>
                         <button type="button" className="w-100 btn btn-lg btn-primary">Suscribirse</button>
                     </div>
