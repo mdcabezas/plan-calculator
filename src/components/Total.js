@@ -3,23 +3,29 @@ import {Context} from '../context/ContextProvider';
 import listaPlanes from '../helpers/listaPlanes';
 import './total.css';
 
-export default function Total() {
+export default function Total({check}) {
 
     const [total, ] = useContext(Context);
-    const [uf, setUf] = useState(null)
+    const [uf, setUf] = useState(0);
 
-    const date =  new Date().toLocaleDateString('es-CL', { year: 'numeric',month: 'numeric',day: 'numeric' } );
 
   useEffect(() => {
-    fetch(`https://mindicador.cl/api/uf/${date}`)
+    const fecha =  new Date().toLocaleDateString('es-CL', { year: 'numeric',month: 'numeric',day: 'numeric' } );
+    fetch(`https://mindicador.cl/api/uf/${fecha}`)
     .then(response => response.json())
     .then(data => setUf(data.serie[0].valor))
   },[])
 
-    const totalSumados = total.reduce((acc, item) =>{
+    let totalSumados = total.reduce((acc, item) =>{
         return {usuario: acc.usuario + item.usuario, trabajador: acc.trabajador + item.trabajador }
       },{usuario:0, trabajador:0})
-    
+
+      if(check){
+        const arregloUsuarios = total.map((item)=>item.usuario) 
+        const usuarioMasAlto = Math.max(...arregloUsuarios)
+        totalSumados = {...totalSumados, usuario: usuarioMasAlto}
+      }
+
     const seleccionados = listaPlanes.filter((plan) =>{
         if (totalSumados.usuario > 0 &&  totalSumados.usuario <= plan.u && totalSumados.trabajador > 0 && totalSumados.trabajador <= plan.t)
          {return true} else { return false}  
@@ -27,8 +33,9 @@ export default function Total() {
 
     return (
         <>
+        <pre>totalSumados {JSON.stringify(totalSumados)}</pre>
         <div className="row row-cols-1 row-cols-md-3 mb-3 align-items-center text-center">
-            <div className="col">
+            <div className="col">   
                 <div className="card mb-4 rounded-3 shadow-sm text-center">
                     <div className="card-header py-3">
                         <h4 className="my-0 fw-normal">Total Neto</h4>

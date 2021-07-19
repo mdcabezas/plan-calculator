@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import {Context} from '../context/ContextProvider';
 import Total from './Total';
 import UserEmployee from './UserEmployee';
+import SameUser from './SameUser';
 
 export default function PrincipalFrame() {
 
@@ -38,9 +39,8 @@ export default function PrincipalFrame() {
 
             { companyUserEmployee.map((co, i) => ( <UserEmployee key ={i} company = {co.id}/> )) }       
 
-
-
-          <Total />
+           {company && <SameUser /> } 
+          
 
       </div> {/* CONTAINER */}      
     </>
